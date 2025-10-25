@@ -15,9 +15,26 @@ struct ContentView: View {
     // @State private var enabled = false
     // @State private var dragAmount = CGSize.zero
     
-    // @State private var isShowingRed = false
+    @State private var isShowingRed = false
     
     var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(.blue)
+                .frame(width:200, height:200)
+            
+            if isShowingRed {
+                Rectangle()
+                    .fill(.red)
+                    .frame(width: 200, height: 200)
+                    .transition(.pivot)
+            }
+        }
+        .onTapGesture {
+            withAnimation {
+                isShowingRed.toggle()
+            }
+        }
         
         //asymmetric transition: enter and removal
         /*
@@ -154,6 +171,27 @@ struct ContentView: View {
         .animation(.spring(duration: 1, bounce: 0.3), value: enabled)
         .padding(100)
     */
+    }
+}
+
+struct CornerRotateModifier: ViewModifier {
+    let amount: Double
+    let anchor: UnitPoint
+    
+    func body(content: Content) -> some View {
+        content
+            //.rotation3DEffect(.degrees(amount), axis: (x: 1, y: -1, z: 1), anchor: anchor)
+            .rotationEffect(.degrees(amount), anchor: anchor)
+            .clipped()
+    }
+}
+
+extension AnyTransition {
+    static var pivot: AnyTransition {
+        .modifier(
+            active: CornerRotateModifier(amount: -90, anchor: .topLeading),
+            identity: CornerRotateModifier(amount: 0, anchor: .topLeading)
+        )
     }
 }
 
