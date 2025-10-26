@@ -16,6 +16,8 @@ struct ContentView: View {
     @State private var guessCount = 0
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Spain", "UK", "Ukraine", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
+    @State private var tappedFlag: Int? = nil
+    @State private var enable = true
         
     var body: some View {
         
@@ -53,14 +55,18 @@ struct ContentView: View {
                     ForEach(0..<3) { number in
                         Button {
                             flagTapped(number)
+                            enable.toggle()
+                            
                         } label: {
                             Image(countries[number])
                                 .clipShape(Rectangle())
                                 .cornerRadius(10)
                                 .shadow(radius: 15)
+                                .rotation3DEffect(Angle(degrees: enable ? 360 : 0), axis: (x: -1, y: 1, z: 0))
+                                .opacity(tappedFlag == number ? 1 : 0.25)
+                                .scaleEffect(tappedFlag == number ? 1.2 : 1)
                         }
                     }
-                    
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 20)
@@ -71,7 +77,6 @@ struct ContentView: View {
             }
             .padding(.horizontal, 20)
         }
-        
         .alert(isPresented: $showingScore) {
             switch gameOver {
                 case true:
@@ -87,6 +92,7 @@ struct ContentView: View {
 
     func flagTapped(_ number: Int) {
         
+        tappedFlag = number
         guessCount += 1
         
         if number == correctAnswer {
@@ -96,6 +102,7 @@ struct ContentView: View {
         } else {
             scoreTitle = "Wrong! That's the flag of \(countries[number])"
         }
+        
         askQuestion()
         showingScore = true
         
